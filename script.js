@@ -5,46 +5,37 @@ let WAIT_ANIMATION = false;
 const getBricksArray = () => [...square?.childNodes];
 
 const beginNewGame = () => {
-
-
-  function generatePuzzle() {
-    // Создаем и перемешиваем массив
-    let tiles = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-    for (let i = tiles.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
-    }
+  // Создаем и перемешиваем массив
+  let tiles = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+  for (let i = tiles.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+  // Проверяем разрешимость
+  let inv = 0;
+  for (let i = 0; i < 16; i++) {
+      if (tiles[i] === 0) continue;
+      for (let j = i + 1; j < 16; j++) {
+          if (tiles[j] === 0) continue;
+          if (tiles[i] > tiles[j]) inv++;
+      }
+  }
     
-    // Проверяем разрешимость
-    let inv = 0;
-    for (let i = 0; i < 16; i++) {
-        if (tiles[i] === 0) continue;
-        for (let j = i + 1; j < 16; j++) {
-            if (tiles[j] === 0) continue;
-            if (tiles[i] > tiles[j]) inv++;
-        }
-    }
-    
-    const emptyRow = 4 - Math.floor(tiles.indexOf(0) / 4);
-    
-    // Если неразрешима - меняем две первые фишки
-    if ((inv + emptyRow) % 2 !== 0) {
-        let first = tiles.findIndex(x => x !== 0);
-        let second = tiles.findIndex((x, idx) => x !== 0 && idx > first);
-        [tiles[first], tiles[second]] = [tiles[second], tiles[first]];
-    }
-    return tiles;
+  const emptyRow = 4 - Math.floor(tiles.indexOf(0) / 4);
+  
+  // Если неразрешима - меняем две первые фишки
+  if ((inv + emptyRow) % 2 !== 0) {
+      let first = tiles.findIndex(x => x !== 0);
+      let second = tiles.findIndex((x, idx) => x !== 0 && idx > first);
+      [tiles[first], tiles[second]] = [tiles[second], tiles[first]];
   }
   
-  // Использование:
-  const startPosition = generatePuzzle();
-  
-  const randomPositions = [];
-  while (startPosition.length > 0) {
-    const brick = startPosition.splice(0, 1).at(0);
-    randomPositions.push(`<b data-brick-id=${randomPositions.length}>${brick || ''}</b>`);
+  const bricks = [];
+  while (tiles.length > 0) {
+    const brick = tiles.splice(0, 1).at(0);
+    bricks.push(`<b data-brick-id=${bricks.length}>${brick || ''}</b>`);
   }
-  square.innerHTML = randomPositions.join('');
+  square.innerHTML = bricks.join('');
 };
 
 const checkWinner = () => {
