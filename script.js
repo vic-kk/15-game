@@ -5,37 +5,28 @@ let WAIT_ANIMATION = false;
 const getBricksArray = () => [...square?.childNodes];
 
 const beginNewGame = () => {
-  // Создаем и перемешиваем массив
-  let tiles = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-  for (let i = tiles.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
-  }
-  // Проверяем разрешимость
-  let inv = 0;
-  for (let i = 0; i < 16; i++) {
-      if (tiles[i] === 0) continue;
-      for (let j = i + 1; j < 16; j++) {
-          if (tiles[j] === 0) continue;
-          if (tiles[i] > tiles[j]) inv++;
-      }
-  }
+  let tiles = Array.from({length: 15}, (_, i) => i + 1);
+  tiles.push('');
+  
+  const shuffleMoves = 200;
+  let emptyIndex = 15;
+  for (let i = 0; i < shuffleMoves; i++) {
+    const neighbors = [];
+    const row = Math.floor(emptyIndex / 4);
+    const col = emptyIndex % 4;
     
-  const emptyRow = 4 - Math.floor(tiles.indexOf(0) / 4);
-  
-  // Если неразрешима - меняем две первые фишки
-  if ((inv + emptyRow) % 2 !== 0) {
-      let first = tiles.findIndex(x => x !== 0);
-      let second = tiles.findIndex((x, idx) => x !== 0 && idx > first);
-      [tiles[first], tiles[second]] = [tiles[second], tiles[first]];
+    if (row > 0) neighbors.push(emptyIndex - 4); // верх
+    if (row < 3) neighbors.push(emptyIndex + 4); // низ
+    if (col > 0) neighbors.push(emptyIndex - 1); // лево
+    if (col < 3) neighbors.push(emptyIndex + 1); // право
+    
+    const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+    [tiles[emptyIndex], tiles[randomNeighbor]] = [tiles[randomNeighbor], tiles[emptyIndex]];
+    emptyIndex = randomNeighbor;
   }
   
-  const bricks = [];
-  while (tiles.length > 0) {
-    const brick = tiles.splice(0, 1).at(0);
-    bricks.push(`<b data-brick-id=${bricks.length}>${brick || ''}</b>`);
-  }
-  square.innerHTML = bricks.join('');
+  const randomPositions = tiles.map((tile, index) => `<b data-brick-id=${index}>${tile}</b>`);
+  square.innerHTML = randomPositions.join('');
 };
 
 const checkWinner = () => {
