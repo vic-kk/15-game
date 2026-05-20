@@ -31,6 +31,9 @@ const beginNewGame = () => {
 
 const checkWinner = () => {
   const bricks = getBricksArray();
+
+  if (bricks[bricks.length - 1].innerHTML !== "") return;
+
   for (var i = bricks.length - 1; i > 0; i--) {
     if (i != bricks[i - 1].innerHTML) break;
     if (i == 1) alert("Congrats! You won the game!");
